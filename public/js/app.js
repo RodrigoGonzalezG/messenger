@@ -57471,13 +57471,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ["variant"],
+  props: {
+    variant: String,
+    conversation: Object
+  },
   data: function data() {
-    return {
-      name: "Rodrigo Gonzalez",
-      lastMessage: "Tú: Hasta luego!",
-      lastTime: "1:37 pm"
-    };
+    return {};
   },
   mounted: function mounted() {}
 });
@@ -57527,10 +57526,12 @@ var render = function() {
               attrs: { cols: "8", "align-self": "center" }
             },
             [
-              _c("p", { staticClass: "mb-1" }, [_vm._v(_vm._s(_vm.name))]),
+              _c("p", { staticClass: "mb-1" }, [
+                _vm._v(_vm._s(_vm.conversation.contact_name))
+              ]),
               _vm._v(" "),
               _c("p", { staticClass: "text-muted small mb-1" }, [
-                _vm._v(_vm._s(_vm.lastMessage))
+                _vm._v(_vm._s(_vm.conversation.last_message))
               ])
             ]
           ),
@@ -57543,7 +57544,7 @@ var render = function() {
             },
             [
               _c("p", { staticClass: "text-muted small" }, [
-                _vm._v(_vm._s(_vm.lastTime))
+                _vm._v(_vm._s(_vm.conversation.last_time))
               ])
             ]
           )
@@ -57744,12 +57745,42 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
-    return {};
+    return {
+      conversations: []
+    };
   },
-  mounted: function mounted() {}
+  mounted: function mounted() {
+    this.getConversations();
+  },
+
+  methods: {
+    getConversations: function getConversations() {
+      var _this = this;
+
+      axios.get('/api/conversations').then(function (Response) {
+        _this.conversations = Response.data;
+      });
+    },
+    selectConversation: function selectConversation(conversation) {
+      console.log("Hola mundo");
+    },
+    mouseDentro: function mouseDentro(id) {
+      document.getElementById(id).style.background = "#c6c8ca";
+    },
+    mouseFuera: function mouseFuera(id) {
+      var elemento = document.getElementById(id);
+      elemento.style.removeProperty('background');
+    }
+  }
 });
 
 /***/ }),
@@ -57777,13 +57808,23 @@ var render = function() {
       _vm._v(" "),
       _c(
         "b-list-group",
-        [
-          _c("contact-component", { attrs: { variant: "dark" } }),
-          _vm._v(" "),
-          _c("contact-component", { attrs: { variant: "" } }),
-          _vm._v(" "),
-          _c("contact-component", { attrs: { variant: "secondary" } })
-        ],
+        _vm._l(_vm.conversations, function(conversation) {
+          return _c("contact-component", {
+            key: conversation.id,
+            attrs: { id: conversation.id, conversation: conversation },
+            nativeOn: {
+              click: function($event) {
+                return _vm.selectConversation(conversation)
+              },
+              mouseover: function($event) {
+                return _vm.mouseDentro(conversation.id)
+              },
+              mouseleave: function($event) {
+                return _vm.mouseFuera(conversation.id)
+              }
+            }
+          })
+        }),
         1
       )
     ],
@@ -57907,7 +57948,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
   data: function data() {
     return {
       messages: [],
-      newMessage: ""
+      newMessage: "",
+      contactId: 2
     };
   },
   mounted: function mounted() {
@@ -57918,7 +57960,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     getMessages: function getMessages() {
       var _this = this;
 
-      axios.get("/api/messages").then(function (Response) {
+      axios.get("/api/messages?contact_id=" + this.contactId).then(function (Response) {
         _this.messages = Response.data;
       });
     },
